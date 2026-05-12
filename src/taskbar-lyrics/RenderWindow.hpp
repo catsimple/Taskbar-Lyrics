@@ -45,18 +45,15 @@ class 呈现窗口类
 
     IDWriteFactory* DWrite工厂 = nullptr;
 
-    // 缓存的 DWrite 资源，避免每帧重建
     IDWriteTextFormat* DWrite主歌词文本格式 = nullptr;
     IDWriteTextFormat* DWrite副歌词文本格式 = nullptr;
 
-    // 脏标记：标记哪些资源需要重建
     bool 主歌词格式脏 = true;
     bool 副歌词格式脏 = true;
     bool 主歌词布局脏 = true;
     bool 副歌词布局脏 = true;
     bool 窗口大小脏 = true;
 
-    // 上一次绘制状态，用于判断是否需要重绘
     std::wstring 上次主歌词;
     std::wstring 上次副歌词;
     D2D1::ColorF 上次主歌词颜色 = D2D1::ColorF(0, 0, 0, 0);
@@ -67,7 +64,6 @@ class 呈现窗口类
     long 上次窗口宽 = 0;
     long 上次窗口高 = 0;
 
-    // 缓存的窗口位置（相对坐标），避免重复 MoveWindow
     long 上次左 = -1;
     long 上次上 = -1;
     long 上次宽 = -1;
@@ -78,6 +74,8 @@ class 呈现窗口类
     bool 深浅模式 = false;
     bool 组件按钮 = false;
     bool 居中对齐 = true;
+    bool 上次任务栏可见 = true;
+    bool 上次应当隐藏 = false;
 
     std::wstring 主歌词 = L"任务栏歌词启动成功";
     std::wstring 副歌词 = L"等待插件传输歌词...";
@@ -109,11 +107,12 @@ class 呈现窗口类
 
 
 	public:
-    void 更新窗口();
+    void 更新窗口(bool 强制重绘 = false);
     void 标记重绘();
 
 
     private:
+    bool 需要隐藏窗口();
     bool 需要重绘();
     void 确保文本格式();
 	void 绘制窗口(long, long, long, long, long, long);

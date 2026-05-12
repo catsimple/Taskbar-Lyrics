@@ -60,7 +60,7 @@ void 任务栏窗口类::创建窗口(
 ) {
     HWND 任务栏_句柄 = FindWindow(L"Shell_TrayWnd", NULL);
     this->窗口句柄 = CreateWindowEx(
-        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST,
+        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
         this->窗口类名.c_str(),
         this->窗口名字.c_str(),
         WS_POPUP,
@@ -263,6 +263,12 @@ LRESULT CALLBACK 任务栏窗口类::窗口过程(
         case WM_PAINT:
         {
             任务栏窗口类::任务栏窗口->呈现窗口->更新窗口();
+        };
+        break;
+
+        case WM_SHOWWINDOW:
+        {
+            任务栏窗口类::任务栏窗口->呈现窗口->更新窗口(true);
         };
         break;
 

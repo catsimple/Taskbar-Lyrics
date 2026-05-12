@@ -126,9 +126,80 @@ void 呈现窗口类::确保文本格式()
 }
 
 
-void 呈现窗口类::更新窗口()
+bool 呈现窗口类::需要隐藏窗口()
 {
-    // 始终更新存储的屏幕坐标矩形，确保轮询线程的 memcmp 比较正确
+    if (!IsWindowVisible(this->任务栏_句柄))
+    {
+        return true;
+    }
+
+    HWND 前台窗口 = GetForegroundWindow();
+    if (!前台窗口 || 前台窗口 == *this->窗口句柄 || 前台窗口 == this->任务栏_句柄)
+    {
+        return false;
+    }
+
+    if (IsIconic(前台窗口) || !IsWindowVisible(前台窗口))
+    {
+        return false;
+    }
+
+    RECT 前台矩形 = {};
+    if (!GetWindowRect(前台窗口, &前台矩形))
+    {
+        return false;
+    }
+
+    HMONITOR 监视器 = MonitorFromWindow(前台窗口, MONITOR_DEFAULTTONEAREST);
+    if (!监视器)
+    {
+        return false;
+    }
+
+    MONITORINFO 监视器信息 = {};
+    监视器信息.cbSize = sizeof(监视器信息);
+    if (!GetMonitorInfo(监视器, &监视器信息))
+    {
+        return false;
+    }
+
+    const RECT& 屏幕矩形 = 监视器信息.rcMonitor;
+    constexpr int 允许误差 = 2;
+    return
+        abs(前台矩形.left - 屏幕矩形.left) <= 允许误差 &&
+        abs(前台矩形.top - 屏幕矩形.top) <= 允许误差 &&
+        abs(前台矩形.right - 屏幕矩形.right) <= 允许误差 &&
+        abs(前台矩形.bottom - 屏幕矩形.bottom) <= 允许误差;
+}
+
+
+void 呈现窗口类::更新窗口(bool 强制重绘)
+{
+    bool 当前任务栏可见 = IsWindowVisible(this->任务栏_句柄);
+    bool 当前应当隐藏 = this->需要隐藏窗口();
+    bool 任务栏可见性变化 = 当前任务栏可见 != this->上次任务栏可见;
+    bool 隐藏状态变化 = 当前应当隐藏 != this->上次应当隐藏;
+    if (任务栏可见性变化 || 隐藏状态变化)
+    {
+        this->上次任务栏可见 = 当前任务栏可见;
+        this->上次应当隐藏 = 当前应当隐藏;
+        强制重绘 = true;
+    }
+
+    if (当前应当隐藏)
+    {
+        if ((任务栏可见性变化 || 隐藏状态变化) && IsWindowVisible(*this->窗口句柄))
+        {
+            ShowWindow(*this->窗口句柄, SW_HIDE);
+        }
+        return;
+    }
+
+    if ((任务栏可见性变化 || 隐藏状态变化) && !IsWindowVisible(*this->窗口句柄))
+    {
+        ShowWindow(*this->窗口句柄, SW_SHOWNOACTIVATE);
+    }
+
     RECT 旧任务栏_矩形 = this->任务栏_矩形;
     RECT 旧开始按钮_矩形 = this->开始按钮_矩形;
     RECT 旧活动区域_矩形 = this->活动区域_矩形;
@@ -230,11 +301,12 @@ void 呈现窗口类::更新窗口()
 
     bool 位置变化 = (左 != this->上次左 || 上 != this->上次上 || 宽 != this->上次宽 || 高 != this->上次高);
 
-    if (!布局变化 && !位置变化 && !this->需要重绘())
+    if (!强制重绘 && !布局变化 && !位置变化 && !this->需要重绘())
     {
         return;
     }
 
+    BringWindowToTop(*this->窗口句柄);
     this->上次左 = 左;
     this->上次上 = 上;
     this->上次宽 = 宽;
@@ -242,6 +314,7 @@ void 呈现窗口类::更新窗口()
 
     MoveWindow(*this->窗口句柄, 左, 上, 宽, 高, false);
     this->绘制窗口(左, 上, 宽, 高, 任务栏左, 任务栏上);
+    RedrawWindow(*this->窗口句柄, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 
