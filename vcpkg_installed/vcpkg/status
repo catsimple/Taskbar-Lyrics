@@ -1,0 +1,53 @@
+Package: vcpkg-cmake-config
+Version: 2024-05-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 15ad28a60ac13cb6ab9ebcf306cb3180bc6b0286df1b4abaf9c71556078b006a
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2024-04-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 2b60d8e7306028c87f47fa370eccc5929a1ffd34fad8de3d33d96a4c3f379ad9
+Status: install ok installed
+
+Package: brotli
+Version: 1.1.0
+Port-Version: 1
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x86-windows
+Multi-Arch: same
+Abi: 7c516e266f9b6d68eebb2d4c856e5eae38e2749e540f1ac91c7b7b0a2a360129
+Description: a generic-purpose lossless compression algorithm that compresses data using a combination of a modern variant of the LZ77 algorithm, Huffman coding and 2nd order context modeling.
+Status: install ok installed
+
+Package: cpp-httplib
+Version: 0.20.0
+Port-Version: 1
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x86-windows
+Multi-Arch: same
+Abi: 1ce25ad0224e2a00db66036935a6fe346f80cd20a50debf32715673c83f82dc4
+Description: A single file C++11 header-only HTTP/HTTPS server and client library
+Default-Features: brotli
+Status: install ok installed
+
+Package: cpp-httplib
+Feature: brotli
+Depends: brotli
+Architecture: x86-windows
+Multi-Arch: same
+Description: Enables brotli compression support using brotli
+Status: install ok installed
+
+Package: nlohmann-json
+Version: 3.11.3
+Port-Version: 1
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x86-windows
+Multi-Arch: same
+Abi: 4373f0203427c798e0255bd0fdf874fe7196bd43ddda1c6403f7ecdeb91fedc0
+Description: JSON for Modern C++
+Status: install ok installed
+

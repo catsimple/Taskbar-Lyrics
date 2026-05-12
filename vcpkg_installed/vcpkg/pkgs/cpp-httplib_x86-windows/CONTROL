@@ -1,0 +1,16 @@
+Package: cpp-httplib
+Version: 0.20.0
+Port-Version: 1
+Depends: vcpkg-cmake:x64-windows, vcpkg-cmake-config:x64-windows
+Architecture: x86-windows
+Multi-Arch: same
+Abi: 1ce25ad0224e2a00db66036935a6fe346f80cd20a50debf32715673c83f82dc4
+Description: A single file C++11 header-only HTTP/HTTPS server and client library
+Default-Features: brotli
+
+Package: cpp-httplib
+Feature: brotli
+Depends: brotli
+Architecture: x86-windows
+Multi-Arch: same
+Description: Enables brotli compression support using brotli

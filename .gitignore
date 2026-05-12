@@ -1,5 +1,11 @@
-plugin/cpp/.idea
-plugin/cpp/build
+.vs
+.vscode
 
-plugin/js/node_modules
-plugin/js/build
+Release
+Debug
+
+dist_debug
+dist/taskbar-lyrics.pdb
+
+betterncm-plugin.vcxproj.user
+taskbar-lyrics.vcxproj.user

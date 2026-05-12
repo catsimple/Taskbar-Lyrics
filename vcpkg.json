@@ -1,0 +1,9 @@
+{
+  "name": "taskbar-lyrics",
+  "version-string": "1.6.3",
+  "builtin-baseline": "4f8fe05871555c1798dbcb1957d0d595e94f7b57",
+  "dependencies": [
+    "cpp-httplib",
+    "nlohmann-json"
+  ]
+}

@@ -1,0 +1,3 @@
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/plugin/cpp/build/x64-release/CMakeFiles/native.dir
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/plugin/cpp/build/x64-release/CMakeFiles/ALL_BUILD.dir
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/plugin/cpp/build/x64-release/CMakeFiles/ZERO_CHECK.dir

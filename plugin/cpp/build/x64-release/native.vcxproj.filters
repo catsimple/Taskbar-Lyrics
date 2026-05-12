@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\DllMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\plugin\Plugin.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\plugin\Config.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\plugin\Receiver.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\taskbar\Taskbar.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\taskbar\Handler.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\taskbar\Registry.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\window\Window.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\window\Renderer.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\src\window\Lyrics.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Administrator\Desktop\Taskbar-Lyrics\plugin\cpp\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{74CC9AB9-10DB-3FB2-8399-8BAEA1DFED97}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

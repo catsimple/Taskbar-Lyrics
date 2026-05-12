@@ -1,0 +1,12 @@
+Change Dir: 'C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/blds/cpp-httplib/x86-windows-rel'
+
+Run Build Command(s): "H:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe" -v -v -j13 install
+[0/1] C:\Windows\system32\cmd.exe /C "cd /D C:\Users\Administrator\Desktop\Taskbar-Lyrics\vcpkg_installed\vcpkg\blds\cpp-httplib\x86-windows-rel && C:\Users\Administrator\AppData\Local\vcpkg\downloads\tools\cmake-3.30.1-windows\cmake-3.30.1-windows-i386\bin\cmake.exe -P cmake_install.cmake"
+-- Install configuration: "Release"
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/include/httplib.h
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/lib/cmake/httplib/httplibConfig.cmake
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/lib/cmake/httplib/httplibConfigVersion.cmake
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/lib/cmake/httplib/httplibTargets.cmake
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/share/doc/httplib/README.md
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/share/licenses/httplib/LICENSE
+

@@ -1,0 +1,11 @@
+Downloading https://github.com/yhirose/cpp-httplib/archive/v0.20.0.tar.gz -> yhirose-cpp-httplib-v0.20.0.tar.gz
+Successfully downloaded yhirose-cpp-httplib-v0.20.0.tar.gz
+-- Extracting source C:/Users/Administrator/AppData/Local/vcpkg/downloads/yhirose-cpp-httplib-v0.20.0.tar.gz
+-- Applying patch fix-find-brotli.patch
+-- Using source at C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/blds/cpp-httplib/src/v0.20.0-734454df38.clean
+-- Found external ninja('1.12.1').
+-- Configuring x86-windows
+-- Building x86-windows-rel
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/share/cpp-httplib/copyright
+-- Installing: C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/share/cpp-httplib/usage
+-- Performing post-build validation

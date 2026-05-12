@@ -1,0 +1,6 @@
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/include/httplib.h
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/lib/cmake/httplib/httplibConfig.cmake
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/lib/cmake/httplib/httplibConfigVersion.cmake
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/lib/cmake/httplib/httplibTargets.cmake
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/share/doc/httplib/README.md
+C:/Users/Administrator/Desktop/Taskbar-Lyrics/vcpkg_installed/vcpkg/pkgs/cpp-httplib_x86-windows/share/licenses/httplib/LICENSE
