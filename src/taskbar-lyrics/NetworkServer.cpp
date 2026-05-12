@@ -3,6 +3,14 @@
 #include "nlohmann/json.hpp"
 #include <d2d1.h>
 
+namespace
+{
+    bool 颜色相同(const D2D1::ColorF& 左, const D2D1::ColorF& 右)
+    {
+        return 左.r == 右.r && 左.g == 右.g && 左.b == 右.b && 左.a == 右.a;
+    }
+}
+
 
 网络服务器类::网络服务器类(
     任务栏窗口类* 任务栏窗口,
@@ -49,13 +57,16 @@ void 网络服务器类::字体(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
-
-    this->任务栏窗口->呈现窗口->字体名称 = this->字符转换.from_bytes(
+    auto 新字体 = this->字符转换.from_bytes(
         json["font_family"].get<std::string>()
     );
 
-    this->任务栏窗口->呈现窗口->标记重绘();
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (this->任务栏窗口->呈现窗口->字体名称 != 新字体)
+    {
+        this->任务栏窗口->呈现窗口->字体名称 = 新字体;
+        this->任务栏窗口->呈现窗口->标记重绘();
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -65,25 +76,50 @@ void 网络服务器类::颜色(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
+    bool 变化 = false;
 
-    this->任务栏窗口->呈现窗口->字体颜色_浅色_主歌词 = D2D1::ColorF(
+    auto 浅色主歌词 = D2D1::ColorF(
         json["basic"]["light"]["hex_color"].get<unsigned int>(),
         json["basic"]["light"]["opacity"].get<float>()
     );
-    this->任务栏窗口->呈现窗口->字体颜色_深色_主歌词 = D2D1::ColorF(
+    auto 深色主歌词 = D2D1::ColorF(
         json["basic"]["dark"]["hex_color"].get<unsigned int>(),
         json["basic"]["dark"]["opacity"].get<float>()
     );
-    this->任务栏窗口->呈现窗口->字体颜色_浅色_副歌词 = D2D1::ColorF(
+    auto 浅色副歌词 = D2D1::ColorF(
         json["extra"]["light"]["hex_color"].get<unsigned int>(),
         json["extra"]["light"]["opacity"].get<float>()
     );
-    this->任务栏窗口->呈现窗口->字体颜色_深色_副歌词 = D2D1::ColorF(
+    auto 深色副歌词 = D2D1::ColorF(
         json["extra"]["dark"]["hex_color"].get<unsigned int>(),
         json["extra"]["dark"]["opacity"].get<float>()
     );
 
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (!颜色相同(this->任务栏窗口->呈现窗口->字体颜色_浅色_主歌词, 浅色主歌词))
+    {
+        this->任务栏窗口->呈现窗口->字体颜色_浅色_主歌词 = 浅色主歌词;
+        变化 = true;
+    }
+    if (!颜色相同(this->任务栏窗口->呈现窗口->字体颜色_深色_主歌词, 深色主歌词))
+    {
+        this->任务栏窗口->呈现窗口->字体颜色_深色_主歌词 = 深色主歌词;
+        变化 = true;
+    }
+    if (!颜色相同(this->任务栏窗口->呈现窗口->字体颜色_浅色_副歌词, 浅色副歌词))
+    {
+        this->任务栏窗口->呈现窗口->字体颜色_浅色_副歌词 = 浅色副歌词;
+        变化 = true;
+    }
+    if (!颜色相同(this->任务栏窗口->呈现窗口->字体颜色_深色_副歌词, 深色副歌词))
+    {
+        this->任务栏窗口->呈现窗口->字体颜色_深色_副歌词 = 深色副歌词;
+        变化 = true;
+    }
+
+    if (变化)
+    {
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -93,18 +129,63 @@ void 网络服务器类::样式(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
+    bool 变化 = false;
 
-    this->任务栏窗口->呈现窗口->字体样式_主歌词_字重 = json["basic"]["weight"]["value"].get<DWRITE_FONT_WEIGHT>();
-    this->任务栏窗口->呈现窗口->字体样式_主歌词_斜体 = json["basic"]["slope"].get<DWRITE_FONT_STYLE>();
-    this->任务栏窗口->呈现窗口->字体样式_主歌词_下划线 = json["basic"]["underline"].get<bool>();
-    this->任务栏窗口->呈现窗口->字体样式_主歌词_删除线 = json["basic"]["strikethrough"].get<bool>();
-    this->任务栏窗口->呈现窗口->字体样式_副歌词_字重 = json["extra"]["weight"]["value"].get<DWRITE_FONT_WEIGHT>();
-    this->任务栏窗口->呈现窗口->字体样式_副歌词_斜体 = json["extra"]["slope"].get<DWRITE_FONT_STYLE>();
-    this->任务栏窗口->呈现窗口->字体样式_副歌词_下划线 = json["extra"]["underline"].get<bool>();
-    this->任务栏窗口->呈现窗口->字体样式_副歌词_删除线 = json["extra"]["strikethrough"].get<bool>();
+    auto 主歌词_字重 = json["basic"]["weight"]["value"].get<DWRITE_FONT_WEIGHT>();
+    auto 主歌词_斜体 = json["basic"]["slope"].get<DWRITE_FONT_STYLE>();
+    auto 主歌词_下划线 = json["basic"]["underline"].get<bool>();
+    auto 主歌词_删除线 = json["basic"]["strikethrough"].get<bool>();
+    auto 副歌词_字重 = json["extra"]["weight"]["value"].get<DWRITE_FONT_WEIGHT>();
+    auto 副歌词_斜体 = json["extra"]["slope"].get<DWRITE_FONT_STYLE>();
+    auto 副歌词_下划线 = json["extra"]["underline"].get<bool>();
+    auto 副歌词_删除线 = json["extra"]["strikethrough"].get<bool>();
 
-    this->任务栏窗口->呈现窗口->标记重绘();
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (this->任务栏窗口->呈现窗口->字体样式_主歌词_字重 != 主歌词_字重)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_主歌词_字重 = 主歌词_字重;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_主歌词_斜体 != 主歌词_斜体)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_主歌词_斜体 = 主歌词_斜体;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_主歌词_下划线 != 主歌词_下划线)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_主歌词_下划线 = 主歌词_下划线;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_主歌词_删除线 != 主歌词_删除线)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_主歌词_删除线 = 主歌词_删除线;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_副歌词_字重 != 副歌词_字重)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_副歌词_字重 = 副歌词_字重;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_副歌词_斜体 != 副歌词_斜体)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_副歌词_斜体 = 副歌词_斜体;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_副歌词_下划线 != 副歌词_下划线)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_副歌词_下划线 = 副歌词_下划线;
+        变化 = true;
+    }
+    if (this->任务栏窗口->呈现窗口->字体样式_副歌词_删除线 != 副歌词_删除线)
+    {
+        this->任务栏窗口->呈现窗口->字体样式_副歌词_删除线 = 副歌词_删除线;
+        变化 = true;
+    }
+
+    if (变化)
+    {
+        this->任务栏窗口->呈现窗口->标记重绘();
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -114,15 +195,19 @@ void 网络服务器类::歌词(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
-
-    this->任务栏窗口->呈现窗口->主歌词 = this->字符转换.from_bytes(
+    auto 新主歌词 = this->字符转换.from_bytes(
         json["basic"].get<std::string>()
     );
-    this->任务栏窗口->呈现窗口->副歌词 = this->字符转换.from_bytes(
+    auto 新副歌词 = this->字符转换.from_bytes(
         json["extra"].get<std::string>()
     );
 
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (this->任务栏窗口->呈现窗口->主歌词 != 新主歌词 || this->任务栏窗口->呈现窗口->副歌词 != 新副歌词)
+    {
+        this->任务栏窗口->呈现窗口->主歌词 = 新主歌词;
+        this->任务栏窗口->呈现窗口->副歌词 = 新副歌词;
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -132,11 +217,15 @@ void 网络服务器类::对齐(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
+    auto 新主对齐 = json["basic"].get<DWRITE_TEXT_ALIGNMENT>();
+    auto 新副对齐 = json["extra"].get<DWRITE_TEXT_ALIGNMENT>();
 
-    this->任务栏窗口->呈现窗口->对齐方式_主歌词 = json["basic"].get<DWRITE_TEXT_ALIGNMENT>();
-    this->任务栏窗口->呈现窗口->对齐方式_副歌词 = json["extra"].get<DWRITE_TEXT_ALIGNMENT>();
-
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (this->任务栏窗口->呈现窗口->对齐方式_主歌词 != 新主对齐 || this->任务栏窗口->呈现窗口->对齐方式_副歌词 != 新副对齐)
+    {
+        this->任务栏窗口->呈现窗口->对齐方式_主歌词 = 新主对齐;
+        this->任务栏窗口->呈现窗口->对齐方式_副歌词 = 新副对齐;
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -146,10 +235,13 @@ void 网络服务器类::位置(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
+    auto 新位置 = json["position"]["value"].get<WindowAlignment>();
 
-    this->任务栏窗口->呈现窗口->窗口位置 = json["position"]["value"].get<WindowAlignment>();
-
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (this->任务栏窗口->呈现窗口->窗口位置 != 新位置)
+    {
+        this->任务栏窗口->呈现窗口->窗口位置 = 新位置;
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -159,11 +251,15 @@ void 网络服务器类::边距(
     httplib::Response& res
 ) {
     auto json = nlohmann::json::parse(req.body);
+    auto 新左边距 = json["left"].get<int>();
+    auto 新右边距 = json["right"].get<int>();
 
-    this->任务栏窗口->呈现窗口->左边距 = json["left"].get<int>();
-    this->任务栏窗口->呈现窗口->右边距 = json["right"].get<int>();
-
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    if (this->任务栏窗口->呈现窗口->左边距 != 新左边距 || this->任务栏窗口->呈现窗口->右边距 != 新右边距)
+    {
+        this->任务栏窗口->呈现窗口->左边距 = 新左边距;
+        this->任务栏窗口->呈现窗口->右边距 = 新右边距;
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 
@@ -174,16 +270,21 @@ void 网络服务器类::屏幕(
 ) {
     auto json = nlohmann::json::parse(req.body);
     auto parent_taskbar = json["parent_taskbar"]["value"].get<std::string>();
+    auto 新任务栏句柄 = FindWindow(this->字符转换.from_bytes(parent_taskbar).c_str(), NULL);
+    auto 新开始按钮句柄 = FindWindowEx(新任务栏句柄, NULL, L"Start", NULL);
 
-    this->任务栏窗口->呈现窗口->任务栏_句柄 = FindWindow(this->字符转换.from_bytes(parent_taskbar).c_str(), NULL);
-    this->任务栏窗口->呈现窗口->开始按钮_句柄 = FindWindowEx(this->任务栏窗口->呈现窗口->任务栏_句柄, NULL, L"Start", NULL);
+    if (this->任务栏窗口->呈现窗口->任务栏_句柄 != 新任务栏句柄 || this->任务栏窗口->呈现窗口->开始按钮_句柄 != 新开始按钮句柄)
+    {
+        this->任务栏窗口->呈现窗口->任务栏_句柄 = 新任务栏句柄;
+        this->任务栏窗口->呈现窗口->开始按钮_句柄 = 新开始按钮句柄;
 
-    GetWindowRect(this->任务栏窗口->呈现窗口->任务栏_句柄, &this->任务栏窗口->呈现窗口->任务栏_矩形);
-    GetWindowRect(this->任务栏窗口->呈现窗口->开始按钮_句柄, &this->任务栏窗口->呈现窗口->开始按钮_矩形);
+        GetWindowRect(this->任务栏窗口->呈现窗口->任务栏_句柄, &this->任务栏窗口->呈现窗口->任务栏_矩形);
+        GetWindowRect(this->任务栏窗口->呈现窗口->开始按钮_句柄, &this->任务栏窗口->呈现窗口->开始按钮_矩形);
 
-    SetParent(this->任务栏窗口->窗口句柄, this->任务栏窗口->呈现窗口->任务栏_句柄);
+        SetParent(this->任务栏窗口->窗口句柄, this->任务栏窗口->呈现窗口->任务栏_句柄);
 
-    PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+        PostMessage(this->任务栏窗口->窗口句柄, WM_PAINT, NULL, NULL);
+    }
     res.status = 200;
 }
 

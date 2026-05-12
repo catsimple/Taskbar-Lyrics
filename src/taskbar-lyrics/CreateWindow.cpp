@@ -1,4 +1,11 @@
-﻿#include "CreateWindow.hpp"
+#include "CreateWindow.hpp"
+
+namespace
+{
+    constexpr UINT_PTR 任务栏歌词_定时器ID = 1;
+    constexpr UINT 任务栏歌词_定时器间隔毫秒 = 250;
+}
+
 
 
 任务栏窗口类* 任务栏窗口类::任务栏窗口 = nullptr;
@@ -13,6 +20,7 @@
 
     this->注册窗口(实例句柄);
     this->创建窗口(实例句柄, 显示方法);
+    SetTimer(this->窗口句柄, 任务栏歌词_定时器ID, 任务栏歌词_定时器间隔毫秒, nullptr);
 
     this->剩余宽度检测();
     this->监听注册表();
@@ -263,6 +271,15 @@ LRESULT CALLBACK 任务栏窗口类::窗口过程(
         case WM_PAINT:
         {
             任务栏窗口类::任务栏窗口->呈现窗口->更新窗口();
+        };
+        break;
+
+        case WM_TIMER:
+        {
+            if (字参数 == 任务栏歌词_定时器ID)
+            {
+                任务栏窗口类::任务栏窗口->呈现窗口->更新窗口();
+            }
         };
         break;
 

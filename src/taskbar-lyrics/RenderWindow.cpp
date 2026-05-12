@@ -3,6 +3,28 @@
 #pragma comment (lib, "d2d1.lib")
 #pragma comment (lib, "dwrite.lib")
 
+namespace
+{
+    bool 是桌面窗口(HWND 窗口句柄)
+    {
+        if (!窗口句柄)
+        {
+            return false;
+        }
+
+        wchar_t 类名[128] = {};
+        if (!GetClassNameW(窗口句柄, 类名, sizeof(类名) / sizeof(类名[0])))
+        {
+            return false;
+        }
+
+        return
+            wcscmp(类名, L"Progman") == 0 ||
+            wcscmp(类名, L"WorkerW") == 0 ||
+            wcscmp(类名, L"SHELLDLL_DefView") == 0;
+    }
+}
+
 
 呈现窗口类::呈现窗口类(
     HWND* 窗口句柄
@@ -135,6 +157,11 @@ bool 呈现窗口类::需要隐藏窗口()
 
     HWND 前台窗口 = GetForegroundWindow();
     if (!前台窗口 || 前台窗口 == *this->窗口句柄 || 前台窗口 == this->任务栏_句柄)
+    {
+        return false;
+    }
+
+    if (是桌面窗口(前台窗口))
     {
         return false;
     }
@@ -314,7 +341,6 @@ void 呈现窗口类::更新窗口(bool 强制重绘)
 
     MoveWindow(*this->窗口句柄, 左, 上, 宽, 高, false);
     this->绘制窗口(左, 上, 宽, 高, 任务栏左, 任务栏上);
-    RedrawWindow(*this->窗口句柄, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 
