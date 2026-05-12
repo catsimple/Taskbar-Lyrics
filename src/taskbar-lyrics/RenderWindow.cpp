@@ -3,8 +3,11 @@
 #pragma comment (lib, "d2d1.lib")
 #pragma comment (lib, "dwrite.lib")
 
+#define TASKBAR_LYRICS_ENABLE_DEBUG_LOG 0
+
 namespace
 {
+#if TASKBAR_LYRICS_ENABLE_DEBUG_LOG
     std::wstring 获取调试日志路径()
     {
         static std::wstring 日志路径;
@@ -140,6 +143,7 @@ namespace
 
         CloseHandle(文件句柄);
     }
+#endif
 
 
     bool 是桌面窗口(HWND 窗口句柄)
@@ -345,7 +349,9 @@ bool 呈现窗口类::需要隐藏窗口()
 {
     if (!IsWindowVisible(this->任务栏_句柄))
     {
+#if TASKBAR_LYRICS_ENABLE_DEBUG_LOG
         写入调试日志(L"taskbar-hidden", this->任务栏_句柄);
+#endif
         return true;
     }
 
@@ -357,19 +363,25 @@ bool 呈现窗口类::需要隐藏窗口()
 
     if (是任务视图窗口(前台窗口))
     {
+#if TASKBAR_LYRICS_ENABLE_DEBUG_LOG
         写入调试日志(L"task-view", 前台窗口);
+#endif
         return false;
     }
 
     if (是桌面窗口(前台窗口))
     {
+#if TASKBAR_LYRICS_ENABLE_DEBUG_LOG
         写入调试日志(L"desktop", 前台窗口);
+#endif
         return false;
     }
 
     if (是显示桌面宿主窗口(前台窗口))
     {
+#if TASKBAR_LYRICS_ENABLE_DEBUG_LOG
         写入调试日志(L"desktop", 前台窗口);
+#endif
         return false;
     }
 
@@ -430,7 +442,9 @@ bool 呈现窗口类::需要隐藏窗口()
         return false;
     }
 
+#if TASKBAR_LYRICS_ENABLE_DEBUG_LOG
     写入调试日志(L"fullscreen", 前台窗口, &前台矩形);
+#endif
     return true;
 }
 
