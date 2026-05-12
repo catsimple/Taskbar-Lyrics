@@ -76,6 +76,10 @@ class 呈现窗口类
     bool 居中对齐 = true;
     bool 上次任务栏可见 = true;
     bool 上次应当隐藏 = false;
+    bool 上次是任务视图窗口 = false;
+    bool 上次是桌面界面窗口 = false;
+    bool 上次是系统界面窗口 = false;
+    ULONGLONG 上次系统界面退出时间 = 0;
 
     std::wstring 主歌词 = L"任务栏歌词启动成功";
     std::wstring 副歌词 = L"等待插件传输歌词...";

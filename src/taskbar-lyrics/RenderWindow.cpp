@@ -5,6 +5,143 @@
 
 namespace
 {
+    std::wstring 获取调试日志路径()
+    {
+        static std::wstring 日志路径;
+        if (!日志路径.empty())
+        {
+            return 日志路径;
+        }
+
+        wchar_t 模块路径[MAX_PATH] = {};
+        DWORD 长度 = GetModuleFileNameW(nullptr, 模块路径, static_cast<DWORD>(_countof(模块路径)));
+        if (!长度)
+        {
+            return L"taskbar-lyrics-debug.log";
+        }
+
+        wchar_t* 文件名 = wcsrchr(模块路径, L'\\');
+        if (!文件名)
+        {
+            文件名 = wcsrchr(模块路径, L'/');
+        }
+
+        if (文件名)
+        {
+            *(文件名 + 1) = L'\0';
+        }
+
+        日志路径 = 模块路径;
+        日志路径 += L"taskbar-lyrics-debug.log";
+        return 日志路径;
+    }
+
+
+    void 写入调试日志(const wchar_t* 原因, HWND 前台窗口, const RECT* 矩形 = nullptr)
+    {
+        wchar_t 类名[128] = {};
+        wchar_t 消息[512] = {};
+        wchar_t 标题[256] = {};
+        DWORD 进程ID = 0;
+        HWND 父窗口 = nullptr;
+        HWND 所属窗口 = nullptr;
+        LONG 样式 = 0;
+        LONG 扩展样式 = 0;
+        if (前台窗口)
+        {
+            GetClassNameW(前台窗口, 类名, sizeof(类名) / sizeof(类名[0]));
+            GetWindowThreadProcessId(前台窗口, &进程ID);
+            父窗口 = GetParent(前台窗口);
+            所属窗口 = GetWindow(前台窗口, GW_OWNER);
+            GetWindowTextW(前台窗口, 标题, sizeof(标题) / sizeof(标题[0]));
+            样式 = GetWindowLongW(前台窗口, GWL_STYLE);
+            扩展样式 = GetWindowLongW(前台窗口, GWL_EXSTYLE);
+        }
+
+        if (矩形)
+        {
+            swprintf_s(
+                消息,
+                L"[TaskbarLyrics] hide=%s hwnd=%p class=%s pid=%lu parent=%p owner=%p style=%08lx exstyle=%08lx title=%s rect=(%ld,%ld,%ld,%ld)\r\n",
+                原因,
+                前台窗口,
+                类名,
+                进程ID,
+                父窗口,
+                所属窗口,
+                static_cast<unsigned long>(样式),
+                static_cast<unsigned long>(扩展样式),
+                标题,
+                矩形->left,
+                矩形->top,
+                矩形->right,
+                矩形->bottom
+            );
+        }
+        else
+        {
+            swprintf_s(
+                消息,
+                L"[TaskbarLyrics] hide=%s hwnd=%p class=%s pid=%lu parent=%p owner=%p style=%08lx exstyle=%08lx title=%s\r\n",
+                原因,
+                前台窗口,
+                类名,
+                进程ID,
+                父窗口,
+                所属窗口,
+                static_cast<unsigned long>(样式),
+                static_cast<unsigned long>(扩展样式),
+                标题
+            );
+        }
+
+        std::wstring 路径 = 获取调试日志路径();
+        HANDLE 文件句柄 = CreateFileW(
+            路径.c_str(),
+            FILE_APPEND_DATA,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            nullptr,
+            OPEN_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr
+        );
+        if (文件句柄 == INVALID_HANDLE_VALUE)
+        {
+            return;
+        }
+
+        int 字节数 = WideCharToMultiByte(
+            CP_UTF8,
+            0,
+            消息,
+            -1,
+            nullptr,
+            0,
+            nullptr,
+            nullptr
+        );
+        if (字节数 > 1)
+        {
+            std::string UTF8消息(static_cast<size_t>(字节数), '\0');
+            WideCharToMultiByte(
+                CP_UTF8,
+                0,
+                消息,
+                -1,
+                &UTF8消息[0],
+                字节数,
+                nullptr,
+                nullptr
+            );
+
+            DWORD 已写入 = 0;
+            WriteFile(文件句柄, &UTF8消息[0], static_cast<DWORD>(UTF8消息.size() - 1), &已写入, nullptr);
+        }
+
+        CloseHandle(文件句柄);
+    }
+
+
     bool 是桌面窗口(HWND 窗口句柄)
     {
         if (!窗口句柄)
@@ -22,6 +159,62 @@ namespace
             wcscmp(类名, L"Progman") == 0 ||
             wcscmp(类名, L"WorkerW") == 0 ||
             wcscmp(类名, L"SHELLDLL_DefView") == 0;
+    }
+
+
+    bool 是显示桌面宿主窗口(HWND 窗口句柄)
+    {
+        if (!窗口句柄)
+        {
+            return false;
+        }
+
+        wchar_t 类名[128] = {};
+        if (!GetClassNameW(窗口句柄, 类名, sizeof(类名) / sizeof(类名[0])))
+        {
+            return false;
+        }
+
+        if (wcscmp(类名, L"XamlExplorerHostIslandWindow") != 0)
+        {
+            return false;
+        }
+
+        wchar_t 标题[256] = {};
+        if (!GetWindowTextW(窗口句柄, 标题, sizeof(标题) / sizeof(标题[0])))
+        {
+            return true;
+        }
+
+        return 标题[0] == L'\0';
+    }
+
+
+    bool 是任务视图窗口(HWND 窗口句柄)
+    {
+        if (!窗口句柄)
+        {
+            return false;
+        }
+
+        wchar_t 类名[128] = {};
+        if (!GetClassNameW(窗口句柄, 类名, sizeof(类名) / sizeof(类名[0])))
+        {
+            return false;
+        }
+
+        if (wcscmp(类名, L"XamlExplorerHostIslandWindow") != 0)
+        {
+            return false;
+        }
+
+        wchar_t 标题[256] = {};
+        if (!GetWindowTextW(窗口句柄, 标题, sizeof(标题) / sizeof(标题[0])))
+        {
+            return false;
+        }
+
+        return wcscmp(标题, L"任务视图") == 0;
     }
 }
 
@@ -152,6 +345,7 @@ bool 呈现窗口类::需要隐藏窗口()
 {
     if (!IsWindowVisible(this->任务栏_句柄))
     {
+        写入调试日志(L"taskbar-hidden", this->任务栏_句柄);
         return true;
     }
 
@@ -161,12 +355,46 @@ bool 呈现窗口类::需要隐藏窗口()
         return false;
     }
 
+    if (是任务视图窗口(前台窗口))
+    {
+        写入调试日志(L"task-view", 前台窗口);
+        return false;
+    }
+
     if (是桌面窗口(前台窗口))
+    {
+        写入调试日志(L"desktop", 前台窗口);
+        return false;
+    }
+
+    if (是显示桌面宿主窗口(前台窗口))
+    {
+        写入调试日志(L"desktop", 前台窗口);
+        return false;
+    }
+
+    ULONGLONG 当前时间 = GetTickCount64();
+    if (this->上次系统界面退出时间 != 0 && 当前时间 - this->上次系统界面退出时间 < 800)
     {
         return false;
     }
 
     if (IsIconic(前台窗口) || !IsWindowVisible(前台窗口))
+    {
+        return false;
+    }
+
+    if (IsZoomed(前台窗口))
+    {
+        return false;
+    }
+
+    LONG 样式 = GetWindowLongW(前台窗口, GWL_STYLE);
+    const LONG 普通窗口样式 =
+        WS_CAPTION |
+        WS_THICKFRAME |
+        WS_BORDER;
+    if ((样式 & 普通窗口样式) != 0)
     {
         return false;
     }
@@ -192,26 +420,46 @@ bool 呈现窗口类::需要隐藏窗口()
 
     const RECT& 屏幕矩形 = 监视器信息.rcMonitor;
     constexpr int 允许误差 = 2;
-    return
+    bool 接近全屏 =
         abs(前台矩形.left - 屏幕矩形.left) <= 允许误差 &&
         abs(前台矩形.top - 屏幕矩形.top) <= 允许误差 &&
         abs(前台矩形.right - 屏幕矩形.right) <= 允许误差 &&
         abs(前台矩形.bottom - 屏幕矩形.bottom) <= 允许误差;
+    if (!接近全屏)
+    {
+        return false;
+    }
+
+    写入调试日志(L"fullscreen", 前台窗口, &前台矩形);
+    return true;
 }
 
 
 void 呈现窗口类::更新窗口(bool 强制重绘)
 {
     bool 当前任务栏可见 = IsWindowVisible(this->任务栏_句柄);
+    HWND 前台窗口 = GetForegroundWindow();
+    bool 当前是任务视图 = 是任务视图窗口(前台窗口);
+    bool 当前是桌面界面窗口 = 是桌面窗口(前台窗口) || 是显示桌面宿主窗口(前台窗口);
+    bool 当前是系统界面窗口 = 当前是任务视图 || 当前是桌面界面窗口;
+    if (this->上次是系统界面窗口 && !当前是系统界面窗口)
+    {
+        this->上次系统界面退出时间 = GetTickCount64();
+    }
+    bool 刚退出桌面界面 = this->上次是桌面界面窗口 && !当前是桌面界面窗口;
     bool 当前应当隐藏 = this->需要隐藏窗口();
     bool 任务栏可见性变化 = 当前任务栏可见 != this->上次任务栏可见;
     bool 隐藏状态变化 = 当前应当隐藏 != this->上次应当隐藏;
+    bool 刚退出任务视图 = this->上次是任务视图窗口 && !当前是任务视图;
     if (任务栏可见性变化 || 隐藏状态变化)
     {
         this->上次任务栏可见 = 当前任务栏可见;
         this->上次应当隐藏 = 当前应当隐藏;
         强制重绘 = true;
     }
+    this->上次是任务视图窗口 = 当前是任务视图;
+    this->上次是桌面界面窗口 = 当前是桌面界面窗口;
+    this->上次是系统界面窗口 = 当前是系统界面窗口;
 
     if (当前应当隐藏)
     {
@@ -222,9 +470,15 @@ void 呈现窗口类::更新窗口(bool 强制重绘)
         return;
     }
 
-    if ((任务栏可见性变化 || 隐藏状态变化) && !IsWindowVisible(*this->窗口句柄))
+    bool 刚从隐藏恢复 = 隐藏状态变化 && !当前应当隐藏;
+    if (!IsWindowVisible(*this->窗口句柄))
     {
         ShowWindow(*this->窗口句柄, SW_SHOWNOACTIVATE);
+    }
+
+    if (刚从隐藏恢复 || 刚退出任务视图 || 刚退出桌面界面 || 当前是桌面界面窗口 || 当前是任务视图)
+    {
+        BringWindowToTop(*this->窗口句柄);
     }
 
     RECT 旧任务栏_矩形 = this->任务栏_矩形;
@@ -333,13 +587,16 @@ void 呈现窗口类::更新窗口(bool 强制重绘)
         return;
     }
 
-    BringWindowToTop(*this->窗口句柄);
     this->上次左 = 左;
     this->上次上 = 上;
     this->上次宽 = 宽;
     this->上次高 = 高;
 
-    MoveWindow(*this->窗口句柄, 左, 上, 宽, 高, false);
+    bool 需要移动窗口 = 布局变化 || 位置变化 || 刚从隐藏恢复;
+    if (需要移动窗口)
+    {
+        MoveWindow(*this->窗口句柄, 左, 上, 宽, 高, false);
+    }
     this->绘制窗口(左, 上, 宽, 高, 任务栏左, 任务栏上);
 }
 
